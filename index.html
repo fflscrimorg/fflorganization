@@ -19,6 +19,10 @@
             --danger-red: #FF3B30;     /* Canlı Kırmızı */
         }
 
+        html {
+            scroll-behavior: smooth; /* Menüye tıklayınca sayfayı yumuşakça kaydırır */
+        }
+
         body {
             font-family: 'Rajdhani', sans-serif;
             background-color: var(--dark-bg);
@@ -27,6 +31,58 @@
             padding: 0;
             box-sizing: border-box;
             letter-spacing: 0.5px;
+            padding-top: 75px; /* Üst menü barının altında kalmamak için pay */
+        }
+
+        /* MOBİL UYUMLU ÜST MENÜ BAR */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(22, 23, 29, 0.95);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            box-sizing: border-box;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand span {
+            color: var(--primary-yellow);
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 25px;
+        }
+
+        .navbar-item {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .navbar-item:hover {
+            color: var(--primary-yellow);
         }
 
         /* Üst Banner Bölümü */
@@ -75,17 +131,18 @@
             padding: 0 20px;
         }
 
-        /* HAKKIMIZDA BÖLÜMÜ */
-        .about-section {
+        /* BÖLÜM KUTULARI GENEL AYARI */
+        .section-box {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 4px;
             padding: 30px;
-            margin-bottom: 25px;
+            margin-bottom: 40px;
             text-align: left;
+            scroll-margin-top: 100px;
         }
 
-        .about-section h2 {
+        .section-box h2 {
             font-family: 'Orbitron', sans-serif;
             font-size: 1.5rem;
             color: var(--primary-yellow);
@@ -97,12 +154,12 @@
             gap: 10px;
         }
 
-        .about-section h2::before {
+        .section-box h2::before {
             content: '//';
             color: var(--primary-yellow);
         }
 
-        .about-section p {
+        .section-box p {
             font-size: 1.15rem;
             line-height: 1.6;
             color: #A0AEC0;
@@ -194,6 +251,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            scroll-margin-top: 100px;
         }
 
         .section-title::before {
@@ -299,6 +357,20 @@
             transform: translateY(-2px);
         }
 
+        /* Kazanan Kutusu Özel Tasarımı */
+        .winner-box {
+            border-left: 4px solid var(--primary-yellow) !important;
+            background: linear-gradient(135deg, #16171D 0%, #221c11 100%);
+        }
+
+        .winner-team {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-yellow);
+            margin-top: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
         footer {
             margin-top: 100px;
             padding: 30px;
@@ -309,9 +381,47 @@
             font-weight: 600;
             text-align: center;
         }
+
+        /* MOBİL CİHAZLAR İÇİN JİLET GİBİ NAVIGASYON GÜNCELLEMESİ */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 10px 15px;
+                gap: 10px;
+            }
+            body {
+                padding-top: 95px; /* İki satırlı mobil menü için pay */
+            }
+            .navbar-menu {
+                width: 100%;
+                justify-content: flex-start;
+                gap: 18px;
+                overflow-x: auto; /* Taşmaları engeller, sağa doğru kaydırılabilir şerit yapar */
+                padding-bottom: 5px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .navbar-menu::-webkit-scrollbar {
+                display: none;
+            }
+            .navbar-item {
+                font-size: 0.85rem;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <!-- SABİT ÜST MENÜ BAR (NAVBAR) -->
+    <nav class="navbar">
+        <a href="#" class="navbar-brand">FFL <span>LEAGUE</span></a>
+        <div class="navbar-menu">
+            <a href="#hakkimizda" class="navbar-item">Hakkımızda</a>
+            <a href="#slotlar" class="navbar-item">Slotlar</a>
+            <a href="#kazanan" class="navbar-item">Turnuva Kazananı</a>
+            <!-- TIKLANDIĞINDA DOĞRUDAN INSTAGRAM KANALINI AÇAN İLETİŞİM LİNKİ -->
+            <a href="https://www.instagram.com/channel/AbY9qt7HhMGzvYzy/" target="_blank" class="navbar-item">İletişim</a>
+        </div>
+    </nav>
 
     <header>
         <h1>FFL <span>LEAGUE</span></h1>
@@ -321,7 +431,7 @@
     <div class="container">
         
         <!-- HAKKIMIZDA BÖLÜMÜ -->
-        <div class="about-section">
+        <div class="section-box" id="hakkimizda">
             <h2>HAKKIMIZDA</h2>
             <p>FFL LEAGUE, espor ekosisteminde rekabeti ve topluluk ruhunu en üst seviyeye çıkarmak amacıyla kurulmuş profesyonel bir turnuva organizasyonudur. Amacımız; amatör ve profesyonel takımları adil, hırslı ve kesintisiz bir rekabet ortamında bir araya getirmektir. Tamamen şeffaf ve otomatik slot yönetim altyapımızla oyunculara kusursuz bir turnuva deneyimi sunuyoruz. Gücünü topluluktan alan FFL LEAGUE sahnelerinde yerinizi alın!</p>
         </div>
@@ -352,7 +462,7 @@
         </div>
 
         <!-- Slot Durumları -->
-        <div class="section-title">Açık Slot Listesi</div>
+        <div class="section-title" id="slotlar">Açık Slot Listesi</div>
         <div class="section-subtitle">Aşağıdaki slotlar Google Form yanıtlarına göre canlı olarak güncellenir.</div>
         
         <div class="slot-grid" id="slotsContainer">
@@ -362,6 +472,21 @@
         <!-- Buton -->
         <div class="btn-container">
             <a href="https://forms.gle/hn5qxNHsWEnDn4fu6" target="_blank" class="btn-action">BOŞ SLOTU SEÇ & KAYIT OL</a>
+        </div>
+
+        <div style="margin-top: 60px;"></div>
+
+        <!-- TURNUVA KAZANANI BÖLÜMÜ -->
+        <div class="section-box winner-box" id="kazanan">
+            <h2>TURNUVA KAZANANI</h2>
+            <p>Son düzenlenen FFL LEAGUE turnuvasının şampiyonu ve podyumun zirvesindeki takım:</p>
+            <div class="winner-team">🏆 BEKLEMEDE KALIN</div>
+        </div>
+
+        <!-- ALTTAN İLETİŞİM PANELİNİ KALDIRMADIM, SADECE METNİ DETAYLANDIRDIM -->
+        <div class="section-box">
+            <h2>İLETİŞİM</h2>
+            <p>Destek, sponsorluk veya turnuva süreçleriyle ilgili tüm bildirimler için yukarıdaki menüde yer alan İletişim butonunu kullanarak veya doğrudan Instagram kanalımız üzerinden bizimle bağlantı kurabilirsiniz.</p>
         </div>
 
     </div>
