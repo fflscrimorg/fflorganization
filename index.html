@@ -379,45 +379,33 @@
         }
 
         fetch(csvUrl)
-            .then(response => response.text())
-            .then(data => {
-                let satirlar = data.split("\n");
-                for(let i = 1; i < satirlar.length; i++) {
-                    let sutunlar = satirlar[i].split(",");
-                    if(sutunlar.length >= 3) {
-                        let takimAdi = sutunlar[1].replace(/"/g, "").trim(); 
-                        let secilenSlot = sutunlar[2].replace(/"/g, "").trim(); 
-                        
-                        if(slotDurumlari[secilenSlot]) {
-                            slotDurumlari[secilenSlot].filled = true;
-                            slotDurumlari[secilenSlot].team = takimAdi;
-                        }
-                    }
-                }
-                ekranaCiz();
-            }).catch(err => {
-                ekranaCiz();
-            });
-
-        function ekranaCiz() {
-            container.innerHTML = "";
-            for(let i = 1; i <= toplamSlotSayisi; i++) {
-                let slotAdi = `Slot ${i}`;
-                let data = slotDurumlari[slotAdi];
-                
-                let div = document.createElement('div');
-                div.className = data.filled ? "slot filled" : "slot available";
-                
-                // 10'dan küçük slotlar için başına 0 ekler (Slot #01, Slot #25 vb.)
-                let slotNo = i < 10 ? `0${i}` : i;
-                
-                div.innerHTML = `
-                    <div class="slot-number">SLOT #${slotNo}</div>
-                    <div class="slot-status">${data.filled ? data.team : "MÜSAİT"}</div>
-                `;
-                container.appendChild(div);
-            }
+  .then(response => response.text())
+  .then(data => {
+    // Satırları bölüyoruz
+    const rows = data.split('\n').slice(1); 
+    
+    rows.forEach(row => {
+      // Virgülle ayrılmış sütunları alıyoruz
+      const columns = row.split(',');
+      if (columns.length >= 3) {
+        const takimAdi = columns[1].trim(); // B Sütunu
+        const slotMetni = columns[2].trim(); // C Sütunu
+        
+        // Tablodan gelen "Slot 1" veya "Slot 19" içindeki sadece rakamı çekiyoruz
+        const slotNumarasi = slotMetni.replace(/\D/g, ''); 
+        
+        if (slotNumarasi) {
+          // Sitedeki ilgili slot elementini buluyoruz (Örn: slot-1, slot-19)
+          const slotElementi = document.getElementById(`slot-${slotNumarasi}`);
+          if (slotElementi) {
+            slotElementi.classList.remove('musait');
+            slotElementi.classList.add('dolu');
+            // Slotun içine takım adını yazdırıyoruz
+            slotElementi.innerHTML = `<span>Slot ${slotNumarasi}</span><strong>${takimAdi}</strong>`;
+          }
         }
-    </script>
-</body>
-</html>
+      }
+    });
+  })
+  .catch(error => console.error("Veri çekme hatası:", error));
+
