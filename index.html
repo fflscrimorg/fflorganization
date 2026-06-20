@@ -268,6 +268,10 @@
             color: var(--success-green);
         }
 
+        .filled .slot-status {
+            color: #fca5a5;
+        }
+
         /* Aksiyon Butonu */
         .btn-container {
             text-align: center;
@@ -303,6 +307,7 @@
             font-size: 1rem;
             color: var(--text-muted);
             font-weight: 600;
+            text-align: center;
         }
     </style>
 </head>
@@ -325,7 +330,7 @@
         <div class="instagram-banner">
             <div class="instagram-text">
                 <h4>FFL LEAGUE ORGANİZASYON KANALI</h4>
-                <p>Turnuva duyuruları, fikstürler ve anlık gelişmelerden haberdar olmak için kanalımıza katılın.</p>
+                <p>Turnuva duyuruları, fikstürler and anlık gelişmelerden haberdar olmak için kanalımıza katılın.</p>
             </div>
             <a href="https://www.instagram.com/channel/AbY9qt7HhMGzvYzy/" target="_blank" class="btn-instagram">KANALA KATIL</a>
         </div>
@@ -366,46 +371,50 @@
     </footer>
 
     <script>
-        // GOOGLE E-TABLODAN ALDIĞIN .CSV LİNKİNİ AŞAĞIYA YAPIŞTIR
-        const csvUrl = "https://docs.google.com/spreadsheets/d/1irLc-r25bdzl3k5XJfrlyLqmPB-kOFoGaRpFcyBDxY8/pub?output=csv
-";
-        const toplamSlotSayisi = 25; // ARTIK 25 SLOT!
-
+        const csvUrl = "https://docs.google.com/spreadsheets/d/1irLc-r25bdzl3k5XJfrlyLqmPB-kOFoGaRpFcyBDxY8/pub?output=csv";
+        const toplamSlotSayisi = 25;
         const container = document.getElementById('slotsContainer');
-        let slotDurumlari = {};
-        
-        for(let i = 1; i <= toplamSlotSayisi; i++) {
-            slotDurumlari[`Slot ${i}`] = { filled: false, team: "MÜSAİT" };
+
+        // 1. Önce 25 slotu boş (MÜSAİT) olarak ekrana basıyoruz
+        for (let i = 1; i <= toplamSlotSayisi; i++) {
+            const slotDiv = document.createElement('div');
+            slotDiv.className = 'slot available';
+            slotDiv.id = `slot-${i}`;
+            slotDiv.innerHTML = `
+                <div class="slot-number">SLOT #${String(i).padStart(2, '0')}</div>
+                <div class="slot-status">MÜSAİT</div>
+            `;
+            container.appendChild(slotDiv);
         }
 
+        // 2. CSV verisini çekip dolu olanları güncelliyoruz
         fetch(csvUrl)
-  .then(response => response.text())
-  .then(data => {
-    // Satırları bölüyoruz
-    const rows = data.split('\n').slice(1); 
-    
-    rows.forEach(row => {
-      // Virgülle ayrılmış sütunları alıyoruz
-      const columns = row.split(',');
-      if (columns.length >= 3) {
-        const takimAdi = columns[1].trim(); // B Sütunu
-        const slotMetni = columns[2].trim(); // C Sütunu
-        
-        // Tablodan gelen "Slot 1" veya "Slot 19" içindeki sadece rakamı çekiyoruz
-        const slotNumarasi = slotMetni.replace(/\D/g, ''); 
-        
-        if (slotNumarasi) {
-          // Sitedeki ilgili slot elementini buluyoruz (Örn: slot-1, slot-19)
-          const slotElementi = document.getElementById(`slot-${slotNumarasi}`);
-          if (slotElementi) {
-            slotElementi.classList.remove('musait');
-            slotElementi.classList.add('dolu');
-            // Slotun içine takım adını yazdırıyoruz
-            slotElementi.innerHTML = `<span>Slot ${slotNumarasi}</span><strong>${takimAdi}</strong>`;
-          }
-        }
-      }
-    });
-  })
-  .catch(error => console.error("Veri çekme hatası:", error));
-
+            .then(response => response.text())
+            .then(data => {
+                const rows = data.split('\n').slice(1); 
+                
+                rows.forEach(row => {
+                    // Virgüllere göre böl (Tırnak içindeki virgülleri bozmayan regex)
+                    const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    
+                    if (columns.length >= 3) {
+                        const takimAdi = columns[1].replace(/["']/g, "").trim(); 
+                        const slotMetni = columns[2].replace(/["']/g, "").trim(); 
+                        
+                        // Metnin içinden ("Slot 19" -> "19") sadece rakamı çekiyoruz
+                        const slotNumarasi = slotMetni.replace(/\D/g, ''); 
+                        
+                        if (slotNumarasi && parseInt(slotNumarasi) >= 1 && parseInt(slotNumarasi) <= toplamSlotSayisi) {
+                            const slotElementi = document.getElementById(`slot-${parseInt(slotNumarasi)}`);
+                            if (slotElementi) {
+                                slotElementi.className = 'slot filled';
+                                slotElementi.querySelector('.slot-status').textContent = takimAdi;
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error("Veri çekme hatası:", error));
+    </script>
+</body>
+</html>
