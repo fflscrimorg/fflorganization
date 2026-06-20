@@ -371,11 +371,12 @@
     </footer>
 
     <script>
-        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS0Y-ETCmBOlx-XL8P1oUgt3d56W8rso0wHoA73pkW0c7TLWrU1W1ZnNK8nRar1x1sNzc0sGsNc9wzV/pub?gid=165449567&single=true&output=csv";
+        const csvUrl = "https://docs.google.com/spreadsheets/d/1irLc-r25bdzl3k5XJfrlyLqmPB-kOFoGaRpFcyBDxY8/pub?output=csv";
         const toplamSlotSayisi = 25;
+        const yenilemeAraligiSn = 15; // Her 15 saniyede bir otomatik kontrol eder
         const container = document.getElementById('slotsContainer');
 
-        // 1. Önce 25 slotu boş (MÜSAİT) olarak ekrana basıyoruz
+        // Sayfa ilk açıldığında 25 boş slot kutusunu oluşturuyoruz (bir kere yapılır)
         for (let i = 1; i <= toplamSlotSayisi; i++) {
             const slotDiv = document.createElement('div');
             slotDiv.className = 'slot available';
@@ -387,37 +388,51 @@
             container.appendChild(slotDiv);
         }
 
-        // 2. CSV verisini çekip dolu olanları güncelliyoruz
-        fetch(csvUrl)
-            .then(response => response.text())
-            .then(data => {
-                // İşletim sistemleri arası satır uyuşmazlığını düzelten regex ayırıcı
-                const rows = data.split(/\r?\n/).slice(1); 
-                
-                rows.forEach(row => {
-                    if (!row.trim()) return; // Boş satırları atla
-                    
-                    // Virgüllere göre böl (Tırnak içindeki virgülleri bozmayan regex)
-                    const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    
-                    if (columns.length >= 3) {
-                        const takimAdi = columns[1].replace(/["']/g, "").trim(); 
-                        const slotMetni = columns[2].replace(/["']/g, "").trim(); 
-                        
-                        // Metnin içinden ("Slot 19" -> "19") sadece rakamı çekiyoruz
-                        const slotNumarasi = slotMetni.replace(/\D/g, ''); 
-                        
-                        if (slotNumarasi && parseInt(slotNumarasi) >= 1 && parseInt(slotNumarasi) <= toplamSlotSayisi) {
-                            const slotElementi = document.getElementById(`slot-${parseInt(slotNumarasi)}`);
-                            if (slotElementi) {
-                                slotElementi.className = 'slot filled';
-                                slotElementi.querySelector('.slot-status').textContent = takimAdi;
+        function slotlariGuncelle() {
+            // Cache'i kırmak için her istekte zaman damgası ekliyoruz
+            fetch(`${csvUrl}&_t=${Date.now()}`)
+                .then(response => response.text())
+                .then(data => {
+                    // Önce her şeyi MÜSAİT'e sıfırlıyoruz, böylece silinen kayıtlar da boşa döner
+                    for (let i = 1; i <= toplamSlotSayisi; i++) {
+                        const slotElementi = document.getElementById(`slot-${i}`);
+                        slotElementi.className = 'slot available';
+                        slotElementi.querySelector('.slot-status').textContent = 'MÜSAİT';
+                    }
+
+                    // İşletim sistemleri arası satır uyuşmazlığını düzelten regex ayırıcı
+                    const rows = data.split(/\r?\n/).slice(1);
+
+                    rows.forEach(row => {
+                        if (!row.trim()) return; // Boş satırları atla
+
+                        // Virgüllere göre böl (Tırnak içindeki virgülleri bozmayan regex)
+                        const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+
+                        if (columns.length >= 3) {
+                            const takimAdi = columns[1].replace(/["']/g, "").trim();
+                            const slotMetni = columns[2].replace(/["']/g, "").trim();
+
+                            // Metnin içinden ("Slot 19" -> "19") sadece rakamı çekiyoruz
+                            const slotNumarasi = slotMetni.replace(/\D/g, '');
+
+                            if (slotNumarasi && parseInt(slotNumarasi) >= 1 && parseInt(slotNumarasi) <= toplamSlotSayisi) {
+                                const slotElementi = document.getElementById(`slot-${parseInt(slotNumarasi)}`);
+                                if (slotElementi) {
+                                    slotElementi.className = 'slot filled';
+                                    slotElementi.querySelector('.slot-status').textContent = takimAdi;
+                                }
                             }
                         }
-                    }
-                });
-            })
-            .catch(error => console.error("Veri çekme hatası:", error));
+                    });
+                })
+                .catch(error => console.error("Veri çekme hatası:", error));
+        }
+
+        // İlk yükleme
+        slotlariGuncelle();
+        // Belirli aralıklarla otomatik tekrar kontrol et
+        setInterval(slotlariGuncelle, yenilemeAraligiSn * 1000);
     </script>
 </body>
 </html>
