@@ -305,11 +305,12 @@
             opacity: 0.85;
         }
 
-        /* FFL Organizasyon Slotu - Özel Sarı Vurgu */
+        /* FFL Organizasyon Slotu - ASİL FFL SARISI ARKA PLAN VE SİYAH YAZI */
         .slot.host {
-            border-bottom: 3px solid var(--primary-yellow);
-            background-color: #121318;
-            opacity: 0.85;
+            border-bottom: 3px solid #FFFFFF;
+            background-color: var(--primary-yellow);
+            opacity: 1; /* Matlığı kaldırıp tamamen canlandırıyoruz */
+            box-shadow: 0 4px 15px rgba(255, 189, 0, 0.25);
         }
 
         .slot-number {
@@ -318,6 +319,11 @@
             text-transform: uppercase;
             font-weight: 700;
             margin-bottom: 8px;
+        }
+
+        /* FFL Slotunda Üstteki Numara Yazısının Rengi */
+        .host .slot-number {
+            color: #2F2F2F; /* Siyah zeminle uyumlu koyu gri tonu */
         }
 
         .slot-status {
@@ -337,8 +343,9 @@
             color: #fca5a5;
         }
 
+        /* FFL Slotunda Takım İsmi Rengi */
         .host .slot-status {
-            color: var(--primary-yellow);
+            color: #0D0E12 !important; /* Tamamen Siyah */
         }
 
         /* Aksiyon Butonu */
@@ -429,6 +436,8 @@
             <a href="#hakkimizda" class="navbar-item">Hakkımızda</a>
             <a href="#slotlar" class="navbar-item">Slotlar</a>
             <a href="#kazanan" class="navbar-item">Turnuva Kazananı</a>
+            <!-- DOĞRUDAN INSTAGRAM KANALINI AÇAN İLETİŞİM LİNKİ -->
+            <a href="https://www.instagram.com/channel/AbY9qt7HhMGzvYzy/" target="_blank" rel="noopener noreferrer" class="navbar-item">İletişim</a>
         </div>
     </nav>
 
@@ -550,7 +559,7 @@
                             if (slotNumarasi && parseInt(slotNumarasi) >= 1 && parseInt(slotNumarasi) <= toplamSlotSayisi) {
                                 const slotElementi = document.getElementById(`slot-${parseInt(slotNumarasi)}`);
                                 if (slotElementi) {
-                                    // Takım adının içinde "FFL" geçiyorsa (örn. "FFL", "FFL E-SPOR") kırmızı değil sarı göster
+                                    // Takım adının içinde "FFL" geçiyorsa (FFL, FFL ESPOR veya FFL E-SPOR fark etmeksizin) sarı yap
                                     const ffliMi = takimAdi.toUpperCase().includes('FFL');
                                     slotElementi.className = ffliMi ? 'slot host' : 'slot filled';
                                     slotElementi.querySelector('.slot-status').textContent = takimAdi;
