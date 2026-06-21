@@ -550,8 +550,8 @@
                             if (slotNumarasi && parseInt(slotNumarasi) >= 1 && parseInt(slotNumarasi) <= toplamSlotSayisi) {
                                 const slotElementi = document.getElementById(`slot-${parseInt(slotNumarasi)}`);
                                 if (slotElementi) {
-                                    // FFL takımı kendi slotunu doldurduysa kırmızı değil, sarı renkte göster
-                                    const ffliMi = takimAdi.toUpperCase() === 'FFL';
+                                    // Takım adının içinde "FFL" geçiyorsa (örn. "FFL", "FFL E-SPOR") kırmızı değil sarı göster
+                                    const ffliMi = takimAdi.toUpperCase().includes('FFL');
                                     slotElementi.className = ffliMi ? 'slot host' : 'slot filled';
                                     slotElementi.querySelector('.slot-status').textContent = takimAdi;
                                 }
