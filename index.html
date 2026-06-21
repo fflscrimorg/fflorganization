@@ -305,6 +305,13 @@
             opacity: 0.85;
         }
 
+        /* FFL Organizasyon Slotu - Özel Sarı Vurgu */
+        .slot.host {
+            border-bottom: 3px solid var(--primary-yellow);
+            background-color: #121318;
+            opacity: 0.85;
+        }
+
         .slot-number {
             font-size: 0.85rem;
             color: var(--text-muted);
@@ -328,6 +335,10 @@
 
         .filled .slot-status {
             color: #fca5a5;
+        }
+
+        .host .slot-status {
+            color: var(--primary-yellow);
         }
 
         /* Aksiyon Butonu */
@@ -418,8 +429,6 @@
             <a href="#hakkimizda" class="navbar-item">Hakkımızda</a>
             <a href="#slotlar" class="navbar-item">Slotlar</a>
             <a href="#kazanan" class="navbar-item">Turnuva Kazananı</a>
-            <!-- TIKLANDIĞINDA DOĞRUDAN INSTAGRAM KANALINI AÇAN İLETİŞİM LİNKİ -->
-            <a href="https://www.instagram.com/channel/AbY9qt7HhMGzvYzy/" target="_blank" class="navbar-item">İletişim</a>
         </div>
     </nav>
 
@@ -442,7 +451,7 @@
                 <h4>FFL LEAGUE ORGANİZASYON KANALI</h4>
                 <p>Turnuva duyuruları, fikstürler ve anlık gelişmelerden haberdar olmak için kanalımıza katılın.</p>
             </div>
-            <a href="https://www.instagram.com/channel/AbY9qt7HhMGzvYzy/" target="_blank" class="btn-instagram">KANALA KATIL</a>
+            <a href="https://www.instagram.com/channel/AbY9qt7HhMGzvYzy/" target="_blank" rel="noopener noreferrer" class="btn-instagram">KANALA KATIL</a>
         </div>
         
         <!-- Turnuva Özet Kartları -->
@@ -471,7 +480,7 @@
 
         <!-- Buton -->
         <div class="btn-container">
-            <a href="https://forms.gle/hn5qxNHsWEnDn4fu6" target="_blank" class="btn-action">BOŞ SLOTU SEÇ & KAYIT OL</a>
+            <a href="https://forms.gle/hn5qxNHsWEnDn4fu6" target="_blank" rel="noopener noreferrer" class="btn-action">BOŞ SLOTU SEÇ & KAYIT OL</a>
         </div>
 
         <div style="margin-top: 60px;"></div>
@@ -481,12 +490,6 @@
             <h2>TURNUVA KAZANANI</h2>
             <p>Son düzenlenen FFL LEAGUE turnuvasının şampiyonu ve podyumun zirvesindeki takım:</p>
             <div class="winner-team">🏆 BEKLEMEDE KALIN</div>
-        </div>
-
-        <!-- ALTTAN İLETİŞİM PANELİNİ KALDIRMADIM, SADECE METNİ DETAYLANDIRDIM -->
-        <div class="section-box">
-            <h2>İLETİŞİM</h2>
-            <p>Destek, sponsorluk veya turnuva süreçleriyle ilgili tüm bildirimler için yukarıdaki menüde yer alan İletişim butonunu kullanarak veya doğrudan Instagram kanalımız üzerinden bizimle bağlantı kurabilirsiniz.</p>
         </div>
 
     </div>
@@ -518,6 +521,9 @@
             fetch(`${csvUrl}&_t=${Date.now()}`)
                 .then(response => response.text())
                 .then(data => {
+                    const eskiHataMesaji = document.getElementById('slot-fetch-error');
+                    if (eskiHataMesaji) eskiHataMesaji.remove();
+
                     // Önce her şeyi MÜSAİT'e sıfırlıyoruz, böylece silinen kayıtlar da boşa döner
                     for (let i = 1; i <= toplamSlotSayisi; i++) {
                         const slotElementi = document.getElementById(`slot-${i}`);
@@ -544,14 +550,21 @@
                             if (slotNumarasi && parseInt(slotNumarasi) >= 1 && parseInt(slotNumarasi) <= toplamSlotSayisi) {
                                 const slotElementi = document.getElementById(`slot-${parseInt(slotNumarasi)}`);
                                 if (slotElementi) {
-                                    slotElementi.className = 'slot filled';
+                                    // FFL takımı kendi slotunu doldurduysa kırmızı değil, sarı renkte göster
+                                    const ffliMi = takimAdi.toUpperCase() === 'FFL';
+                                    slotElementi.className = ffliMi ? 'slot host' : 'slot filled';
                                     slotElementi.querySelector('.slot-status').textContent = takimAdi;
                                 }
                             }
                         }
                     });
                 })
-                .catch(error => console.error("Veri çekme hatası:", error));
+                .catch(error => {
+                    console.error("Veri çekme hatası:", error);
+                    if (!document.getElementById('slot-fetch-error')) {
+                        container.insertAdjacentHTML('beforebegin', '<div id="slot-fetch-error" class="info-board" style="border-left-color: var(--danger-red); margin-bottom: 20px;"><div class="info-item"><h3>UYARI</h3><p style="color: var(--danger-red);">Slot verileri şu anda yüklenemedi. Sayfa otomatik olarak yeniden denemeye devam edecek.</p></div></div>');
+                    }
+                });
         }
 
         // İlk yükleme
